@@ -1,0 +1,23 @@
+{
+  "name": "ebanx-api",
+  "version": "0.0.1",
+  "description": "Api for Take Home assignment from EBANX",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/main.js",
+    "dev": "tsx src/main.ts",
+    "dev:watch": "tsx watch src/main.ts",
+    "test": "tsx --test ./src/**/*.spec.ts"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^20.10.5",
+    "tsx": "^4.6.2",
+    "typescript": "^5.8.3"
+  }
+}
