@@ -3,7 +3,7 @@ import { AccountRepository } from './repositories/account.repository';
 import { ProcessEventUseCase } from './usecases/process-event';
 import { ProcessEventController } from './controllers/process-event.controller';
 import { ZodError } from 'zod';
-import { ApplicationError } from './shared/error';
+import { ApplicationError, ErrorTypes } from './shared/error';
 import { GetBalanceController } from './controllers/get-balance.controller';
 import { GetBalanceUseCase } from './usecases/get-balance';
 
@@ -43,7 +43,7 @@ app.get('/balance', (req: Request, res: Response) => {
   try {
     const output = getBalanceController.execute(req.query['account_id']);
 
-    return res.status(201).json(output);
+    return res.status(200).json(output);
   } catch (error) {
     return handleError(error, res);
   }
@@ -55,7 +55,11 @@ const handleError = (error: any, res: Response) => {
   }
 
   if (error instanceof ApplicationError) {
-    return res.status(error.code).send();
+    if (error.code === ErrorTypes.NotFoundError) {
+      return res.status(error.code).send(0);
+    }
+
+    return res.status(error.code).json({ message: error.message });
   }
 
   return res.sendStatus(500);
