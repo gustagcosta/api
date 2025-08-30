@@ -1,19 +1,9 @@
 import express, { Request, Response } from 'express';
-import { AccountRepository } from './repositories/account.repository';
-import { ProcessEventUseCase } from './usecases/process-event';
-import { ProcessEventController } from './controllers/process-event.controller';
 import { ZodError } from 'zod';
 import { ApplicationError, ErrorTypes } from './shared/error';
-import { GetBalanceController } from './controllers/get-balance.controller';
-import { GetBalanceUseCase } from './usecases/get-balance';
+import { setupContainer } from './container';
 
-const accountRepository = new AccountRepository();
-
-const processEventUseCase = new ProcessEventUseCase(accountRepository);
-const getBalanceUseCase = new GetBalanceUseCase(accountRepository);
-
-const processEventController = new ProcessEventController(processEventUseCase);
-const getBalanceController = new GetBalanceController(getBalanceUseCase);
+const container = setupContainer();
 
 const app = express();
 
@@ -24,6 +14,8 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.post('/reset', (req: Request, res: Response) => {
+  const accountRepository = container.resolve('accountRepository');
+
   accountRepository.reset();
 
   return res.sendStatus(200);
@@ -31,6 +23,8 @@ app.post('/reset', (req: Request, res: Response) => {
 
 app.post('/event', (req: Request, res: Response) => {
   try {
+    const processEventController = container.resolve('processEventController');
+
     const output = processEventController.execute(req.body);
 
     return res.status(201).json(output);
@@ -41,6 +35,8 @@ app.post('/event', (req: Request, res: Response) => {
 
 app.get('/balance', (req: Request, res: Response) => {
   try {
+    const getBalanceController = container.resolve('getBalanceController');
+
     const output = getBalanceController.execute(req.query['account_id']);
 
     return res.status(200).json(output);
@@ -61,6 +57,8 @@ const handleError = (error: any, res: Response) => {
 
     return res.status(error.code).json({ message: error.message });
   }
+
+  console.error({ error });
 
   return res.sendStatus(500);
 };

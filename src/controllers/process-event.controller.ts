@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ProcessEventUseCase } from '../usecases/process-event';
+import { AppContainer } from '../container';
 
 export const eventSchema = z.object({
   type: z.enum(['withdraw', 'deposit', 'transfer']),
@@ -9,7 +10,11 @@ export const eventSchema = z.object({
 });
 
 export class ProcessEventController {
-  constructor(private readonly processEventUseCase: ProcessEventUseCase) {}
+  private processEventUseCase: ProcessEventUseCase;
+
+  constructor(params: AppContainer) {
+    this.processEventUseCase = params.processEventUseCase;
+  }
 
   public execute(input: any) {
     console.log('Process event input', { input });

@@ -1,8 +1,13 @@
 import { z } from 'zod';
 import { GetBalanceUseCase } from '../usecases/get-balance';
+import { AppContainer } from '../container';
 
 export class GetBalanceController {
-  constructor(private readonly getBalanceUseCase: GetBalanceUseCase) {}
+  private getBalanceUseCase: GetBalanceUseCase;
+
+  constructor(params: AppContainer) {
+    this.getBalanceUseCase = params.getBalanceUseCase;
+  }
 
   public execute(input: any) {
     console.log('Get balance input', { input });

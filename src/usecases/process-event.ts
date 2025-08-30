@@ -1,3 +1,4 @@
+import { AppContainer } from '../container';
 import { IAccountRepository } from '../repositories/account.repository';
 import { ApplicationError, ErrorTypes } from '../shared/error';
 
@@ -20,7 +21,11 @@ export type ProcessEventOutput = {
 };
 
 export class ProcessEventUseCase {
-  constructor(private readonly accountRepository: IAccountRepository) {}
+  private accountRepository: IAccountRepository;
+
+  constructor(params: AppContainer) {
+    this.accountRepository = params.accountRepository;
+  }
 
   public execute(input: ProcessEventInput): ProcessEventOutput {
     if (input.amount <= 0) {

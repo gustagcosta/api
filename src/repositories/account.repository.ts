@@ -5,6 +5,7 @@ export interface IAccountRepository {
   findAccount(accountId: string): Account | null;
   saveAccount(account: Account): void;
   findOrCreateAccount(accountId: string): Account;
+  reset(): void;
 }
 
 export class AccountRepository implements IAccountRepository {
