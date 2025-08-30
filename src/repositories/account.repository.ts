@@ -46,6 +46,6 @@ export class AccountRepository implements IAccountRepository {
       return account;
     }
 
-    return { id: accountId, balance: 0 };
+    return { id: accountId, balance: 0, events: [] };
   }
 }

@@ -12,7 +12,8 @@ describe('ProcessEventUseCase', () => {
       findOrCreateAccount: mock.fn(),
       findAccount: mock.fn()
     };
-    useCase = new GetBalanceUseCase(mockGateway);
+
+    useCase = new GetBalanceUseCase({ accountRepository: mockGateway } as any);
   });
 
   it('should throw an error if account not found', () => {

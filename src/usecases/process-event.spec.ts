@@ -14,7 +14,7 @@ describe('ProcessEventUseCase', () => {
       findAccount: mock.fn()
     };
 
-    useCase = new ProcessEventUseCase(mockAccountRepository);
+    useCase = new ProcessEventUseCase({ accountRepository: mockAccountRepository } as any);
   });
 
   it('should throw an error for amount less than or equal to 0', () => {
@@ -33,7 +33,11 @@ describe('ProcessEventUseCase', () => {
     });
 
     it('should deposit into a new account', () => {
-      mockAccountRepository.findOrCreateAccount.mock.mockImplementationOnce((id: string) => ({ id, balance: 0 }));
+      mockAccountRepository.findOrCreateAccount.mock.mockImplementationOnce((id: string) => ({
+        id,
+        balance: 0,
+        events: []
+      }));
 
       const output = useCase.execute({ type: 'deposit', amount: 10, destination: '100' });
 
@@ -45,7 +49,11 @@ describe('ProcessEventUseCase', () => {
     });
 
     it('should deposit into an existing account', () => {
-      mockAccountRepository.findOrCreateAccount.mock.mockImplementationOnce((id: string) => ({ id, balance: 5 }));
+      mockAccountRepository.findOrCreateAccount.mock.mockImplementationOnce((id: string) => ({
+        id,
+        balance: 5,
+        events: []
+      }));
 
       const output = useCase.execute({ type: 'deposit', amount: 10, destination: '100' });
 
@@ -74,7 +82,7 @@ describe('ProcessEventUseCase', () => {
     });
 
     it('should withdraw from an existing account', () => {
-      mockAccountRepository.findAccount.mock.mockImplementationOnce((id: string) => ({ id, balance: 20 }));
+      mockAccountRepository.findAccount.mock.mockImplementationOnce((id: string) => ({ id, balance: 20, events: [] }));
 
       const output = useCase.execute({ type: 'withdraw', amount: 10, origin: '100' });
 
@@ -108,8 +116,12 @@ describe('ProcessEventUseCase', () => {
     });
 
     it('should transfer between two existing accounts', () => {
-      mockAccountRepository.findAccount.mock.mockImplementationOnce((id: string) => ({ id, balance: 50 }));
-      mockAccountRepository.findOrCreateAccount.mock.mockImplementationOnce((id: string) => ({ id, balance: 10 }));
+      mockAccountRepository.findAccount.mock.mockImplementationOnce((id: string) => ({ id, balance: 50, events: [] }));
+      mockAccountRepository.findOrCreateAccount.mock.mockImplementationOnce((id: string) => ({
+        id,
+        balance: 10,
+        events: []
+      }));
 
       const output = useCase.execute({ type: 'transfer', amount: 15, origin: '100', destination: '200' });
 

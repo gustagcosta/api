@@ -1,9 +1,11 @@
+import { randomUUID } from 'node:crypto';
 import { AppContainer } from '../container';
+import { Event, EventType } from '../entities/event';
 import { IAccountRepository } from '../repositories/account.repository';
 import { ApplicationError, ErrorTypes } from '../shared/error';
 
 export type ProcessEventInput = {
-  type: 'withdraw' | 'deposit' | 'transfer';
+  type: EventType;
   amount: number;
   origin?: string;
   destination?: string;
@@ -44,7 +46,7 @@ export class ProcessEventUseCase {
     }
   }
 
-  private deposit(input: ProcessEventInput): ProcessEventOutput {
+  private deposit(input: ProcessEventInput, eventId?: string): ProcessEventOutput {
     if (!input.destination) {
       throw new Error('deposit without destination');
     }
@@ -53,12 +55,23 @@ export class ProcessEventUseCase {
 
     account.balance = account.balance + input.amount;
 
+    const event: Event = {
+      id: randomUUID() || eventId,
+      account_id: account.id,
+      account_role: 'destination',
+      amout: input.amount,
+      type: input.type,
+      created_at: new Date()
+    };
+
+    account.events.push(event);
+
     this.accountRepository.saveAccount(account);
 
     return { destination: { id: input.destination, balance: account.balance } };
   }
 
-  private withdraw(input: ProcessEventInput) {
+  private withdraw(input: ProcessEventInput, eventId?: string) {
     if (!input.origin) {
       throw new Error('withdraw without origin');
     }
@@ -70,6 +83,17 @@ export class ProcessEventUseCase {
     }
 
     account.balance = account.balance - input.amount;
+
+    const event: Event = {
+      id: randomUUID() || eventId,
+      account_id: account.id,
+      account_role: 'origin',
+      amout: input.amount,
+      type: input.type,
+      created_at: new Date()
+    };
+
+    account.events.push(event);
 
     this.accountRepository.saveAccount(account);
 
@@ -85,6 +109,8 @@ export class ProcessEventUseCase {
       throw new Error('origin and destination must not be the same');
     }
 
-    return { ...this.withdraw(input), ...this.deposit(input) };
+    const eventId = randomUUID();
+
+    return { ...this.withdraw(input, eventId), ...this.deposit(input, eventId) };
   }
 }
